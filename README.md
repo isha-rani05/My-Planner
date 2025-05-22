@@ -21,7 +21,7 @@ JavaScript (ES6) – Functionality and interactivity
 
 LocalStorage – Persistent client-side storage
 
-🌐 Live Demo 👉 Click here to use My Planner
+🌐 Live Demo 👉 Click here to use My Planner :  https://isha-rani05.github.io/My-Planner/
 
 📌 How to Use Open the app in your browser.
 
