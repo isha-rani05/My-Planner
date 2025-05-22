@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Planner</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #9D50BB, #6E48AA);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      text-align: center;
+    }
+    input, select, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #4285f4;
+      color: white;
+      cursor: pointer;
+    }
+    .task-list {
+      margin-top: 20px;
+    }
+    .task-item {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px;
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s ease;
+    }
+    .task-item.done {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+    .task-info {
+      flex-grow: 1;
+    }
+    .task-controls {
+      display: flex;
+      gap: 10px;
+    }
+    .complete-btn {
+      background-color: #34A853;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 My Planner</h1>
+    <div>
+      <input id="taskInput" type="text" placeholder="Task description..." />
+      <input id="dateInput" type="date" />
+      <input id="projectInput" type="text" placeholder="Project name..." />
+      <select id="categoryInput">
+        <option value="">--Select Category--</option>
+        <option value="Personal">Personal</option>
+        <option value="Work">Work</option>
+        <option value="Study">Study</option>
+      </select>
+      <select id="priorityInput">
+        <option value="high">🔴 High</option>
+        <option value="medium">🟡 Medium</option>
+        <option value="low">🟢 Low</option>
+      </select>
+      <button onclick="addTask()">Add</button>
+    </div>
+    <div class="task-list" id="taskList"></div>
+  </div>
+  <script>
+    const taskInput = document.getElementById("taskInput");
+    const dateInput = document.getElementById("dateInput");
+    const projectInput = document.getElementById("projectInput");
+    const categoryInput = document.getElementById("categoryInput");
+    const priorityInput = document.getElementById("priorityInput");
+    const taskList = document.getElementById("taskList");
+
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = "";
+
+      const priorityOrder = { high: 1, medium: 2, low: 3 };
+
+      const sortedTasks = tasks.slice().sort((a, b) => {
+        if (a.done !== b.done) return a.done - b.done;
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      });
+
+      sortedTasks.forEach((task, index) => {
+        const div = document.createElement("div");
+        div.className = `task-item${task.done ? " done" : ""}`;
+
+        const info = document.createElement("div");
+        info.className = "task-info";
+        info.innerText = `${task.text} | ${task.date || "No Due Date"} | ${task.project || "General"} | ${task.category || "Uncategorized"} | ${task.priority.toUpperCase()}`;
+
+        const controls = document.createElement("div");
+        controls.className = "task-controls";
+
+        const completeBtn = document.createElement("button");
+        completeBtn.innerText = task.done ? "Undo" : "Done";
+        completeBtn.className = "complete-btn";
+        completeBtn.onclick = () => {
+          task.done = !task.done;
+          saveTasks();
+          renderTasks();
+        };
+
+        controls.appendChild(completeBtn);
+        div.appendChild(info);
+        div.appendChild(controls);
+        taskList.appendChild(div);
+      });
+    }
+
+    function addTask() {
+      const task = {
+        text: taskInput.value.trim(),
+        date: dateInput.value,
+        project: projectInput.value.trim(),
+        category: categoryInput.value,
+        priority: priorityInput.value,
+        done: false
+      };
+
+      if (!task.text) return alert("Please enter a task");
+      tasks.push(task);
+      saveTasks();
+      renderTasks();
+
+      taskInput.value = "";
+      dateInput.value = "";
+      projectInput.value = "";
+      categoryInput.value = "";
+      priorityInput.value = "high";
+    }
+
+    renderTasks();
+  </script>
+</body>
+</html>
